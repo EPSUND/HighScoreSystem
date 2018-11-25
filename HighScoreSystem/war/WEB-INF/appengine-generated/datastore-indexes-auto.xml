@@ -1,6 +1,6 @@
 <!-- Indices written at Mon, 7 Oct 2013 20:56:29 CEST -->
 
-<datastore-indexes>
+<datastore-indexes autoGenerate="true">
 
     <!-- Used 3 times in query history -->
     <datastore-index kind="HighScoreEntry" ancestor="true" source="auto">

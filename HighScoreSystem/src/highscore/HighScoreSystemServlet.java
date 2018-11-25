@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
