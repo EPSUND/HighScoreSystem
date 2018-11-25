@@ -16,6 +16,9 @@
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
   </system-properties>
 
+  <!-- Needed when billing is disabled -->	
+  <url-stream-handler>urlfetch</url-stream-handler>	
+
   <!--
     HTTP Sessions are disabled by default. To enable HTTP sessions specify:
 
