@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.http.*;
-import javax.servlet.http.HttpServlet;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -25,7 +24,7 @@ import com.google.appengine.api.datastore.Query;
 
 @SuppressWarnings("serial")
 public class HighScoreSystemServlet extends HttpServlet {
-	private static final String[] highScoreLists = new String[]{"breakout", "columns", "wordonword_swe", "wordonword_eng", "wordonword_ger"};
+	private static final String[] highScoreLists = new String[]{"breakout", "columns", "etris", "wordonword_swe", "wordonword_eng", "wordonword_ger", "ballbonanza"};
 	private static final Logger logger = Logger.getLogger(HighScoreSystemServlet.class.getName());
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
@@ -94,11 +93,18 @@ public class HighScoreSystemServlet extends HttpServlet {
 		{
 			handleColumnsHighScoreMessage(req);
 		}
+		else if(highScoreList.equals("etris"))
+		{
+			handleEtrisHighScoreMessage(req);
+		}
 		else if(highScoreList.equals("wordonword_swe") ||
 				highScoreList.equals("wordonword_eng") ||
 				highScoreList.equals("wordonword_ger"))
 		{
 			handleWordOnWordHighScoreMessage(req, highScoreList);
+		}
+		else if(highScoreList.equals("ballbonanza")) {
+			handleBallBonanzaHighScoreMessage(req);
 		}
 		
 		//Let the response be the high score list sorted on score
@@ -218,6 +224,53 @@ public class HighScoreSystemServlet extends HttpServlet {
 		datastore.put(highScoreEntry);
 	}
 	
+	private void handleEtrisHighScoreMessage(HttpServletRequest req) throws IOException
+	{
+		String name = req.getParameter("name");
+		String scoreString = req.getParameter("score");
+		String lineString = req.getParameter("lines");
+		String levelString = req.getParameter("level");
+		String timeString = req.getParameter("time");
+		String date = req.getParameter("date");
+		
+		//The request didn't contain a high score entry. We only want to view the list
+		if(name == null || scoreString == null || lineString == null || levelString == null || timeString == null || date == null)
+		{
+			return;
+		}
+		
+		int score, lines, level, time;
+		
+		//Parse number values
+		try {
+			score = Integer.parseInt(scoreString);
+			lines = Integer.parseInt(lineString);
+			level = Integer.parseInt(levelString);
+			time = Integer.parseInt(timeString);
+		} catch (NumberFormatException e) {
+			logger.warning("Score, lines, level or time could not be parsed. Not a valid integer.");
+			return;
+		}
+		
+		//Add the high score entry to the datastore
+		addEtrisHighScoreEntry(name, score, lines, level, time, date);
+	}
+	
+	private void addEtrisHighScoreEntry(String name, int score, int lines, int level, int time, String date)
+	{
+		Key highScoreListKey = KeyFactory.createKey("HighScoreList", "etris");
+		
+		Entity highScoreEntry = new Entity("HighScoreEntry", highScoreListKey);
+		highScoreEntry.setProperty("name", name);
+		highScoreEntry.setProperty("score", score);
+		highScoreEntry.setProperty("lines", lines);
+		highScoreEntry.setProperty("level", level);
+		highScoreEntry.setProperty("time", time);
+		highScoreEntry.setProperty("date", date);
+		
+		datastore.put(highScoreEntry);
+	}
+	
 	private void handleWordOnWordHighScoreMessage(HttpServletRequest req, String highScoreList) throws IOException
 	{
 		String name = req.getParameter("name");
@@ -254,6 +307,50 @@ public class HighScoreSystemServlet extends HttpServlet {
 		highScoreEntry.setProperty("name", name);
 		highScoreEntry.setProperty("score", score);
 		highScoreEntry.setProperty("words", words);
+		highScoreEntry.setProperty("date", date);
+		
+		datastore.put(highScoreEntry);
+	}
+	
+	private void handleBallBonanzaHighScoreMessage(HttpServletRequest req) throws IOException
+	{
+		String name = req.getParameter("name");
+		String scoreString = req.getParameter("score");
+		String ballString = req.getParameter("balls");
+		String timeString = req.getParameter("time");
+		String date = req.getParameter("date");
+		
+		//The request didn't contain a high score entry. We only want to view the list
+		if(name == null || scoreString == null || ballString == null || timeString == null || date == null)
+		{
+			return;
+		}
+		
+		int score, balls, time;
+		
+		//Parse number values
+		try {
+			score = Integer.parseInt(scoreString);
+			balls = Integer.parseInt(ballString);
+			time = Integer.parseInt(timeString);
+		} catch (NumberFormatException e) {
+			logger.warning("Score, balls or time could not be parsed. Not a valid integer.");
+			return;
+		}
+		
+		//Add the high score entry to the datastore
+		addBallBonanzaHighScoreEntry(name, score, balls, time, date);
+	}
+	
+	private void addBallBonanzaHighScoreEntry(String name, int score, int balls, int time, String date)
+	{
+		Key highScoreListKey = KeyFactory.createKey("HighScoreList", "ballbonanza");
+		
+		Entity highScoreEntry = new Entity("HighScoreEntry", highScoreListKey);
+		highScoreEntry.setProperty("name", name);
+		highScoreEntry.setProperty("score", score);
+		highScoreEntry.setProperty("balls", balls);
+		highScoreEntry.setProperty("time", time);
 		highScoreEntry.setProperty("date", date);
 		
 		datastore.put(highScoreEntry);
